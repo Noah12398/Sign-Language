@@ -11,7 +11,7 @@
 .svn/
 .swiftpm/
 migrate_working_dir/
-
+python_model/data
 # IntelliJ related
 *.iml
 *.ipr
