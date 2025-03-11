@@ -10,7 +10,7 @@ import 'package:image_picker/image_picker.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Get available cameras
   List<CameraDescription> cameras = [];
   try {
@@ -18,13 +18,13 @@ void main() async {
   } catch (e) {
     print('Error initializing cameras: $e');
   }
-  
+
   runApp(MyApp(cameras: cameras));
 }
 
 class MyApp extends StatelessWidget {
   final List<CameraDescription> cameras;
-  
+
   const MyApp({Key? key, required this.cameras}) : super(key: key);
 
   @override
@@ -48,7 +48,7 @@ class MyApp extends StatelessWidget {
 
 class MyHomePage extends StatefulWidget {
   final List<CameraDescription> cameras;
-  
+
   const MyHomePage({Key? key, required this.cameras}) : super(key: key);
 
   @override
@@ -60,7 +60,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   Future<void>? _initializeControllerFuture;
   late FlutterTts _flutterTts;
   final ImagePicker _picker = ImagePicker();
-  
+
   String _recognizedText = "No sign detected";
   String _sentence = "";
   List<String> _letterBuffer = [];
@@ -72,21 +72,22 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   Timer? _continuousDetectionTimer;
   bool _continuousDetection = false;
   bool _cameraAvailable = false;
-  
+
   // Server details - change to your Python server address
-  final String serverUrl = 'http://10.0.2.2:5000'; // Default for Android emulator
+  final String serverUrl =
+      ''; // Default for Android emulator
 
   @override
   void initState() {
     super.initState();
-    
+
     // Add observer for app lifecycle changes
     WidgetsBinding.instance.addObserver(this);
-    
+
     // Initialize text-to-speech
     _flutterTts = FlutterTts();
     _flutterTts.setLanguage('en-US');
-    
+
     // Don't initialize the camera here, do it in onNewCameraSelected
     if (widget.cameras.isNotEmpty) {
       onNewCameraSelected(widget.cameras[0]);
@@ -97,7 +98,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       });
     }
   }
-  
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     // Handle app lifecycle state changes
@@ -116,13 +117,13 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       onNewCameraSelected(cameraController.description);
     }
   }
-  
+
   void onNewCameraSelected(CameraDescription cameraDescription) async {
     // Dispose the previous controller
     if (_controller != null) {
       await _controller!.dispose();
     }
-    
+
     // Create a new controller
     final CameraController controller = CameraController(
       cameraDescription,
@@ -148,7 +149,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     } catch (e) {
       setState(() {
         _cameraAvailable = false;
-        _statusMessage = "Camera error: ${e.toString().split('\n')[0]}. Use gallery images instead.";
+        _statusMessage =
+            "Camera error: ${e.toString().split('\n')[0]}. Use gallery images instead.";
         _isError = true;
       });
       print('Error initializing camera: $e');
@@ -163,7 +165,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   void dispose() {
     // Remove observer
     WidgetsBinding.instance.removeObserver(this);
-    
+
     // Dispose the controller
     _controller?.dispose();
     _flutterTts.stop();
@@ -176,7 +178,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       _showCameraErrorDialog();
       return;
     }
-    
+
     setState(() {
       isProcessing = true;
       _statusMessage = "Processing image...";
@@ -187,17 +189,17 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     try {
       // Ensure camera is initialized
       await _initializeControllerFuture;
-      
+
       // Take the picture
       final XFile image = await _controller!.takePicture();
-      
+
       // Process the image
       await _processImageFile(image);
-      
     } catch (e) {
       setState(() {
         _recognizedText = "Capture failed";
-        _statusMessage = "Error capturing image: ${e.toString().split('\n')[0]}";
+        _statusMessage =
+            "Error capturing image: ${e.toString().split('\n')[0]}";
         _isError = true;
       });
       print('Error taking picture: $e');
@@ -205,10 +207,11 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       setState(() {
         isProcessing = false;
       });
-      
+
+      // Continue detection if continuous mode is enabled
       // Continue detection if continuous mode is enabled
       if (_continuousDetection && !isProcessing) {
-        _continuousDetectionTimer = Timer(Duration(milliseconds: 1500), () {
+        _continuousDetectionTimer = Timer(Duration(milliseconds: 5000), () {
           if (mounted && _continuousDetection) {
             _takePictureAndDetect();
           }
@@ -216,9 +219,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       }
     }
   }
-  
+
   // Rest of your code remains the same...
-  
+
   Future<void> _pickImageFromGallery() async {
     try {
       final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
@@ -229,7 +232,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
           _isError = false;
           _detectionAttempts++;
         });
-        
+
         await _processImageFile(image);
       }
     } catch (e) {
@@ -243,42 +246,45 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       });
     }
   }
-  
+
   Future<void> _processImageFile(XFile imageFile) async {
     try {
       // Read image file
       final bytes = await imageFile.readAsBytes();
       final base64Image = base64Encode(bytes);
-      
+
       // Send to server for processing
-      final response = await http.post(
+      final response = await http
+          .post(
         Uri.parse('$serverUrl/detect_sign_from_image'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'image': base64Image}),
-      ).timeout(
-        const Duration(seconds: 10),
+      )
+          .timeout(
+        const Duration(seconds: 20),
         onTimeout: () {
           throw TimeoutException('Server is taking too long to respond');
         },
       );
-      
+
       if (response.statusCode == 200) {
         final jsonData = json.decode(response.body);
         final detectedChar = jsonData['character'] ?? "?";
-        
+
         setState(() {
           _recognizedText = detectedChar;
           _letterBuffer.add(detectedChar);
           _statusMessage = "Sign detected successfully!";
           _isError = false;
-          
+
           // Process letter buffer to form words/sentences
           _processLetterBuffer();
         });
       } else if (response.statusCode == 400) {
         setState(() {
           _recognizedText = "No sign detected";
-          _statusMessage = "No hand detected. Please ensure your hand is clearly visible.";
+          _statusMessage =
+              "No hand detected. Please ensure your hand is clearly visible.";
           _isError = true;
         });
       } else {
@@ -291,34 +297,37 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     } catch (e) {
       setState(() {
         _recognizedText = "Connection failed";
-        _statusMessage = "Error connecting to server: ${e.toString().split('\n')[0]}";
+        _statusMessage =
+            "Error connecting to server: ${e.toString().split('\n')[0]}";
         _isError = true;
       });
     }
   }
-  
+
   void _processLetterBuffer() {
     // Simple logic to detect spaces and form words
     if (_letterBuffer.isNotEmpty) {
       // Check for special gestures or repeated letters
       final lastLetter = _letterBuffer.last;
-      
+
       // Example: If S appears twice in sequence, add a space
-      if (_letterBuffer.length >= 2 && 
-          _letterBuffer[_letterBuffer.length - 1] == 'S' && 
+      if (_letterBuffer.length >= 2 &&
+          _letterBuffer[_letterBuffer.length - 1] == 'S' &&
           _letterBuffer[_letterBuffer.length - 2] == 'S') {
         _sentence += " ";
         _letterBuffer.clear();
         return;
       }
-      
+
       // Example: If user holds the same sign for 3+ frames, consider it deliberate
       if (_letterBuffer.length >= 3 &&
-          _letterBuffer.sublist(_letterBuffer.length - 3).every((e) => e == lastLetter)) {
+          _letterBuffer
+              .sublist(_letterBuffer.length - 3)
+              .every((e) => e == lastLetter)) {
         _sentence += lastLetter;
         _letterBuffer.clear();
       }
-      
+
       // Limit buffer size to prevent memory issues
       if (_letterBuffer.length > 10) {
         _letterBuffer.removeAt(0);
@@ -331,7 +340,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       _showCameraErrorDialog();
       return;
     }
-    
+
     setState(() {
       _continuousDetection = !_continuousDetection;
       if (_continuousDetection) {
@@ -364,7 +373,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       _isError = false;
     });
   }
-  
+
   void _showCameraErrorDialog() {
     showDialog(
       context: context,
@@ -372,9 +381,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         return AlertDialog(
           title: Text("Camera Unavailable"),
           content: Text(
-            "The camera is not available or could not be initialized. "
-            "You can still use the app by selecting images from your gallery."
-          ),
+              "The camera is not available or could not be initialized. "
+              "You can still use the app by selecting images from your gallery."),
           actions: [
             TextButton(
               child: Text("Use Gallery"),
@@ -410,7 +418,9 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
             IconButton(
               icon: Icon(_continuousDetection ? Icons.pause : Icons.play_arrow),
               onPressed: _toggleContinuousDetection,
-              tooltip: _continuousDetection ? 'Pause detection' : 'Continuous detection',
+              tooltip: _continuousDetection
+                  ? 'Pause detection'
+                  : 'Continuous detection',
             ),
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -461,7 +471,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                             Positioned(
                               bottom: 10,
                               child: Container(
-                                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 8),
                                 decoration: BoxDecoration(
                                   color: Colors.black.withOpacity(0.5),
                                   borderRadius: BorderRadius.circular(20),
@@ -509,14 +520,16 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                     ),
                   ),
           ),
-          
+
           // Status message
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(10),
             margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
-              color: _isError ? Colors.red.withOpacity(0.1) : Colors.blue.withOpacity(0.1),
+              color: _isError
+                  ? Colors.red.withOpacity(0.1)
+                  : Colors.blue.withOpacity(0.1),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
                 color: _isError ? Colors.red : Colors.blue,
@@ -540,7 +553,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
               ],
             ),
           ),
-          
+
           // Detected sign
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -549,7 +562,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
               children: [
                 Text(
                   'Current Sign: ',
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 Container(
                   width: 60,
@@ -572,7 +586,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
               ],
             ),
           ),
-          
+
           // Translated sentence
           Expanded(
             flex: 2,
@@ -599,7 +613,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                     children: [
                       const Text(
                         'Translated Sentence:',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                       Row(
                         children: [
@@ -620,8 +635,11 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                   Expanded(
                     child: SingleChildScrollView(
                       child: Text(
-                        _sentence.isEmpty ? 'No signs translated yet' : _sentence,
-                        style: const TextStyle(fontSize: 22, letterSpacing: 1.2),
+                        _sentence.isEmpty
+                            ? 'No signs translated yet'
+                            : _sentence,
+                        style:
+                            const TextStyle(fontSize: 22, letterSpacing: 1.2),
                       ),
                     ),
                   ),
@@ -629,7 +647,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
               ),
             ),
           ),
-          
+
           // Manual detection button (only shown if camera is available and continuous mode is off)
           if (_cameraAvailable && !_continuousDetection)
             Padding(
@@ -642,7 +660,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                   style: TextStyle(fontSize: 20),
                 ),
                 style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 16),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 50, vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
