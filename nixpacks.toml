@@ -1,10 +1,13 @@
 [phases.setup]
-nixpkgs = ["flutter", "python310", "gcc"]
+nixpkgs = ["python310", "gcc"]
+aptPkgs = ["git", "curl", "unzip", "xz-utils"]
 
 [phases.build]
 cmds = [
-  "flutter --version",  # Verify Flutter is installed and in PATH
-  "flutter config --enable-web",  # Make sure web is enabled
+  "git clone https://github.com/flutter/flutter.git",
+  "export PATH=\"$PATH:`pwd`/flutter/bin\"",
+  "flutter --version",
+  "flutter config --enable-web",
   "flutter build web",
   "pip install -r requirements.txt"
 ]
