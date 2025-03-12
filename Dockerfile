@@ -2,31 +2,19 @@
 FROM cirrusci/flutter:latest AS build
 
 # Set working directory
-WORKDIR /app
+WORKDIR /SignLanguage
 
-# Copy the project files
-COPY . .
+# Copy only the Flutter project files first (to leverage caching)
+COPY pubspec.yaml .
+COPY pubspec.lock .
+COPY web web
+COPY lib lib
 
-# Get Flutter dependencies
+# Run pub get
 RUN flutter pub get
+
+# Copy the remaining files
+COPY . .
 
 # Build the Flutter web project
 RUN flutter build web
-
-# Use Python image for the backend
-FROM python:3.10
-
-# Set working directory
-WORKDIR /app
-
-# Copy the backend code
-COPY --from=build /app /app
-
-# Install Python dependencies
-RUN pip install -r requirements.txt
-
-# Expose the required port
-EXPOSE 5000
-
-# Start the backend
-CMD ["python", "signlanguage/python_model/inference_classifier.py"]
