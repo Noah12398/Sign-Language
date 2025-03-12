@@ -11,7 +11,7 @@ CORS(app)  # Enable CORS for all routes
 
 # Load trained model
 try:
-    model_dict = pickle.load(open('signlanguage/python_model/model.p', 'rb'))
+    model_dict = pickle.load(open('./signlanguage/python_model/model.p', 'rb'))    
     model = model_dict['model']
 except Exception as e:
     print(f"Error loading model: {e}")
