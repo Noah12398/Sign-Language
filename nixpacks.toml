@@ -4,11 +4,9 @@ aptPkgs = ["git", "curl", "unzip", "xz-utils", "python3", "python3-pip", "gcc"]
 [phases.build]
 cmds = [
   "git clone https://github.com/flutter/flutter.git /flutter",
-  "cd /app && ls -la",  # Debug: List files to see if pubspec.yaml exists
-  "find /app -name 'pubspec.yaml'",  # Debug: Find pubspec.yaml file
-  "cd /app && /flutter/bin/flutter --version",
-  "cd /app && /flutter/bin/flutter config --enable-web",
-  "cd /app && /flutter/bin/flutter build web",
+  "cd /app/signlanguage && /flutter/bin/flutter --version",
+  "cd /app/signlanguage && /flutter/bin/flutter config --enable-web",
+  "cd /app/signlanguage && /flutter/bin/flutter build web",
   "pip install -r requirements.txt"
 ]
 
