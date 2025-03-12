@@ -1,0 +1,15 @@
+{
+    "routes": [
+      { "src": "/(.*)", "dest": "/signlanguage/index.html" }
+    ],
+    "builds": [
+      {
+        "src": "build/web/**",
+        "use": "@vercel/static"
+      }
+    ],
+    "static": {
+      "distDir": "build/web"
+    }
+  }
+  
