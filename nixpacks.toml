@@ -3,7 +3,11 @@ nixpkgs = ["flutter", "python310", "gcc"]
 
 [phases.build]
 cmds = [
-    "flutter build web","pip install -r requirements.txt"]
+  "flutter --version",  # Verify Flutter is installed and in PATH
+  "flutter config --enable-web",  # Make sure web is enabled
+  "flutter build web",
+  "pip install -r requirements.txt"
+]
 
 [start]
 cmd = "python signlanguage/python_model/inference_classifier.py"
