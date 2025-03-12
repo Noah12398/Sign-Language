@@ -26,6 +26,7 @@ aptPkgs = [
 [phases.build]
 cmds = [
   "git clone https://github.com/flutter/flutter.git /flutter",
+  "export PATH=\"$PATH:/flutter/bin\"",
   "cd /app/signlanguage && /flutter/bin/flutter --version",
   "cd /app/signlanguage && /flutter/bin/flutter config --enable-web",
   "cd /app/signlanguage && /flutter/bin/flutter build web",
