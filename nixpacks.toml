@@ -1,8 +1,26 @@
 [phases.setup]
 aptPkgs = [
-  "git", "curl", "unzip", "xz-utils", "python3", "python3-pip", "gcc",
-  "libgl1-mesa-glx", "libgl1", "libglib2.0-0", "libsm6", "libxext6", "libxrender-dev",
-  "mesa-utils", "libglvnd0"
+    "git", 
+    "curl", 
+    "unzip", 
+    "xz-utils", 
+    "python3", 
+    "python3-pip", 
+    "gcc",
+    "libgl1-mesa-glx",  # This provides libGL.so.1
+    "libglib2.0-0", 
+    "libsm6", 
+    "libxext6", 
+    "libxrender-dev",
+    "libgl1",           # Additional OpenCV dependency
+    "libglib2.0-0",     # Additional OpenCV dependency
+    "libsm6",           # Additional OpenCV dependency
+    "libxrender1",      # Additional OpenCV dependency
+    "libxext6",         # Additional OpenCV dependency
+    "libx11-6",         # Additional OpenCV dependency
+    "libavcodec-dev",   # For video processing
+    "libavformat-dev",  # For video processing
+    "libswscale-dev"    # For video processing
 ]
 
 [phases.build]
@@ -11,7 +29,8 @@ cmds = [
   "cd /app/signlanguage && /flutter/bin/flutter --version",
   "cd /app/signlanguage && /flutter/bin/flutter config --enable-web",
   "cd /app/signlanguage && /flutter/bin/flutter build web",
-  "pip install -r requirements.txt"
+  "pip install -r requirements.txt",
+  "pip install opencv-python-headless"  # Use headless version for server environments
 ]
 
 [start]
