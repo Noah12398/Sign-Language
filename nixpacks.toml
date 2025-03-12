@@ -1,0 +1,8 @@
+[phases.setup]
+nixpkgs = ["python310"]
+
+[phases.build]
+cmds = ["pip install -r requirements.txt"]
+
+[phases.start]
+cmd = "python signlanguage/python_model/inference_classifier.py"

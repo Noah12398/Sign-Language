@@ -75,7 +75,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
   // Server details - change to your Python server address
   final String serverUrl =
-      ''; // Default for Android emulator
+      'http://192.168.56.1:5000'; // Default for Android emulator
 
   @override
   void initState() {
@@ -320,7 +320,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       }
 
       // Example: If user holds the same sign for 3+ frames, consider it deliberate
-      if (_letterBuffer.length >= 3 &&
+      if (_letterBuffer.length >= 2 &&
           _letterBuffer
               .sublist(_letterBuffer.length - 3)
               .every((e) => e == lastLetter)) {
@@ -329,7 +329,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       }
 
       // Limit buffer size to prevent memory issues
-      if (_letterBuffer.length > 10) {
+      if (_letterBuffer.length > 20) {
         _letterBuffer.removeAt(0);
       }
     }
