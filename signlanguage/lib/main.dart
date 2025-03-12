@@ -75,7 +75,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
   // Server details - change to your Python server address
   final String serverUrl =
-      'http://192.168.56.1:5000'; // Default for Android emulator
+      'https://sign-language-sign-language.up.railway.app'; // Default for Android emulator
 
   @override
   void initState() {
