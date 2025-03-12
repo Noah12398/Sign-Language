@@ -1,3 +1,4 @@
+
 [phases.setup]
 aptPkgs = [
     "git", 
@@ -26,9 +27,9 @@ aptPkgs = [
 [phases.build]
 cmds = [
   "git clone https://github.com/flutter/flutter.git /flutter",
-  "export PATH=\"$PATH:/flutter/bin\"",
   "cd /app/signlanguage && /flutter/bin/flutter --version",
   "cd /app/signlanguage && /flutter/bin/flutter config --enable-web",
+  "export PATH=\"$PATH:/flutter/bin\" && flutter --version && flutter config --enable-web && flutter build web",
   "cd /app/signlanguage && /flutter/bin/flutter build web",
   "pip install -r requirements.txt",
   "pip install opencv-python-headless"  # Use headless version for server environments
