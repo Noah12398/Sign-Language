@@ -320,7 +320,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       }
 
       // Example: If user holds the same sign for 3+ frames, consider it deliberate
-      if (_letterBuffer.length >= 2 &&
+      if (_letterBuffer.length >= 1 &&
           _letterBuffer
               .sublist(_letterBuffer.length - 3)
               .every((e) => e == lastLetter)) {
